@@ -1,8 +1,10 @@
-fn main() {
-    let pirate1 = create_pirate("Jhonny".to_string());
-    let mut pirate2 = create_pirate("Jimmy".to_string());
+use rand::Rng;
 
-    pirate1.attack(&mut pirate2);
+fn main() {
+    let pirates_team_blue: Vec<Pirate> = Pirate::new(2);
+    let mut pirates_team_red: Vec<Pirate> = Pirate::new(2);
+
+    pirates_team_blue[0].attack(&mut pirates_team_red[0]);
 }
 
 struct Range(u32, u32);
@@ -10,17 +12,29 @@ struct Range(u32, u32);
 struct Coords {
     x: f32,
     y: f32,
-    z: f32,
 }
+
+// struct Size {
+//     width: u32,
+//     length: u32,
+// }
 
 impl Coords {
     fn distance(&self, other: &Coords) -> f32 {
-        let Coords {x: x1, y: y1, z: z1} = self;
-        let Coords {x: x2, y: y2, z: z2} = other;
+        let Coords {x: x1, y: y1} = self;
+        let Coords {x: x2, y: y2} = other;
 
-        f32::sqrt((x2 - x1).powf(2.0) + (y2 - y1).powf(2.0) + (z2 - z1).powf(2.0))
+        f32::sqrt((x2 - x1).powf(2.0) + (y2 - y1).powf(2.0))
     }
 }
+
+// struct Ship {
+//     coords: Coords,
+//     name: String,
+//     direction: u32,
+//     size: Size,
+//     max_speed: u32,
+// }
 
 struct Weapon {
     name: String,
@@ -48,7 +62,11 @@ impl Pirate {
             );
             other.hurt(self.weapon.damage);
         } else {
-            println!("{} is too far away from {} to attack", self.name, other.name);
+            println!(
+                "{attacker} is too far away from {target} to attack",
+                attacker=self.name,
+                target=other.name,
+            );
         }
     }
 
@@ -69,8 +87,29 @@ impl Pirate {
         }
     }
 
-    fn die(self) {
-        println!("{} has died, RIP!", self.name);
+    // fn die(self) {
+    //     println!("{} has died, RIP!", self.name);
+    // }
+
+    fn new(amount: u8) -> Vec<Pirate> {
+        let mut pirates: Vec<Pirate> = Vec::new();
+        for _ in 0..amount {
+            pirates.push(create_pirate(Pirate::get_random_name()));
+        }
+
+        pirates
+    }
+
+    fn get_random_name() -> String {
+        let names: [&str; 5] = [
+            "Jhonny",
+            "Jimmy",
+            "Tommy",
+            "Mike",
+            "Otis",
+        ];
+        let idx: usize = rand::thread_rng().gen_range(0, names.len());
+        String::from(names[idx])
     }
 }
 
@@ -78,7 +117,6 @@ fn create_pirate(name: String) -> Pirate {
     let coords = Coords {
         x: 0.0,
         y: 0.0,
-        z: 0.0,
     };
 
     let sword = Weapon {
